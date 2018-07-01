@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import root from './root.vue'
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+import './element-variables.scss'
 
 Vue.config.productionTip = false
 

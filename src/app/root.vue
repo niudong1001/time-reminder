@@ -1,14 +1,24 @@
 <template>
   <div>
-    <h1>Today</h1>
-    <el-button type="primary" @click="addTask">
-      Add Task
-    </el-button>
     <div>
-      <div>
-        
-      </div>
+
     </div>
+    <h1 class="todayTasks-title">
+      <i class="el-icon-back todayTasks-title-back"></i> 
+      <span class="titleColor">For Today</span>  
+      <i class="el-icon-circle-plus-outline todayTasks-title-btn" @click="addTask">
+        Add Task
+      </i>
+    </h1>
+    <el-row class="todayTasks-list">
+      <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks">
+        <div class="todayTasks-list__item-title titleColor">{{task.title}}</div>
+        <div class="todayTasks-list__item-desc">{{task.desc}}</div>
+        <div class="todayTasks-list__item-icons">
+          <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">2</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">1</i>
+        </div>
+      </el-col>
+    </el-row>
     <el-dialog title="Add Task" :visible.sync="dialogVisible">
       <el-form :model="form" :rules="rules" ref="form" label-position="top">
         <el-form-item label="Title" prop="title" :label-width="formLabelWidth">
@@ -30,7 +40,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="ensureAddTask('form')">Ensure</el-button>
+        <el-button type="primary" @click="ensureAddTask('form')">Add</el-button>
       </div>
     </el-dialog>
   </div>
@@ -50,8 +60,9 @@
       formLabelWidth: '120px',
       todayTasks:[
         {
+          id: 1,
           title:"学习Nengo",
-          desc:"",
+          desc:"今天要学习nengo",
           startTime:0,
           basicTimeUnit:45,
           estimate:1
@@ -97,15 +108,61 @@
   }
 </script>
 <style lang="scss">
+  $bg-color:rgb(18, 62, 60);
+  $primary-color:rgb(57, 122, 109);
   $font-family:'Courier New', Courier, monospace;
   body {
     font-family: $font-family;
     font-weight: 500;
+    background-color: $bg-color;
+    color: #999;
   }
   .el-form-item__label {
     color: #000;
   }
   .el-input__inner, .el-textarea__inner {
     font-family: $font-family;
+  }
+  .titleColor {
+    color: rgb(70, 140, 128);
+  }
+  .todayTasks {
+    &-title {
+      font-size: 50px;
+      &-back {
+        color:#aaa;
+      }
+      &-btn {
+         color:rgb(121, 138, 32);
+         font-size: 18px;
+      }
+    }
+    &-list {
+      margin-top: 10px;
+      &__item {
+        padding: 0 10px;
+        background: rgb(7, 27, 25);
+        height: 300px;
+        position: relative;
+        &-title {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        &-desc {
+          font-size: 14px;
+        }
+        &-icons {
+          position: absolute;
+          width: 100%;
+          bottom: 10px;
+          right: 10px;
+          font-size: 18px;
+          text-align: right;
+          &__item {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
   }
 </style>
