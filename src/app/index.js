@@ -13,6 +13,6 @@ Vue.use(ElementUI)
 
 new Vue({ // eslint-disable-line no-new
   el: '#app',
-  // router,
-  render: h => h(TodayTasks)
+  router,
+  render: h => h(App)
 })

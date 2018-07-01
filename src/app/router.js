@@ -7,19 +7,19 @@ Vue.use(Router)
 export default new Router({
   routes:[
     {
-      path: '/',
+      path: '/a',
       name: 'TodayTasks',
       component: TodayTasks
     },
-    {
-      path: '*',
-      beforeEnter: (to, from, next) => {
-        if (to.query && to.query.route) {
-          next(to.query.route)
-        } else {
-          next('/')
-        }
-      }
-    }
+    // {
+    //   path: '*',
+    //   beforeEnter: (to, from, next) => {
+    //     if (to.query && to.query.route) {
+    //       next(to.query.route)
+    //     } else {
+    //       next('/')
+    //     }
+    //   }
+    // }
   ]
 })
