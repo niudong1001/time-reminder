@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div>
-
-    </div>
+  <div id="app">
     <h1 class="todayTasks-title">
       <i class="el-icon-back todayTasks-title-back"></i> 
       <span class="titleColor">For Today</span>  
@@ -113,16 +110,29 @@
   $font-family:'Courier New', Courier, monospace;
   body {
     font-family: $font-family;
-    font-weight: 500;
+    font-weight: 400;
     background-color: $bg-color;
     color: #999;
+  }
+  // dialog相关
+  .el-dialog {
+    font-weight: 600;
+  }
+  .el-input__inner,.el-textarea__inner {
+    font-family: $font-family;
+    border-color: #888;
+    color: #000;
+  }
+  .el-input__inner:hover, .el-textarea__inner:hover {
+    border-color: #666;
+  }
+  .el-slider__runway {
+    background-color: #aaa;
   }
   .el-form-item__label {
     color: #000;
   }
-  .el-input__inner, .el-textarea__inner {
-    font-family: $font-family;
-  }
+  // task相关
   .titleColor {
     color: rgb(70, 140, 128);
   }

@@ -20,14 +20,16 @@ module.exports = {
     'tabs',
     'background',
     'unlimitedStorage',
-    'storage'
+    'storage',
+    "webRequest",
+    "webRequestBlocking"
   ],
   browser_action: {
     default_title: 'TimeReminder',
     // default_popup: 'pages/popup.html'
   },
   background: {
-    persistent: false,
+    persistent: true,
     page: 'pages/background.html'
   },
   options_page: 'pages/options.html',
