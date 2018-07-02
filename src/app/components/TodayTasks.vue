@@ -10,10 +10,10 @@
     </h1>
     <el-row class="todayTasks-list">
       <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks" >
-        <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task'})">{{task.title}}</div>
-        <div class="todayTasks-list__item-desc" @click="router({name:'Task'})">{{task.desc}}</div>
+        <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task',params:{taskId:task.id}})">{{task.title}}</div>
+        <div class="todayTasks-list__item-desc" @click="router({name:'Task',params:{taskId:task.id}})">{{task.desc}}</div>
         <div class="todayTasks-list__item-icons">
-          <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">2</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">1</i>
+          <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">{{task.estimate}}</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">{{task.finished}}</i>
         </div>
       </el-col>
     </el-row>
@@ -44,6 +44,7 @@
   </div>
 </template>
 <script>
+  import utils from "../../ext/utils"
   var validatePass = (rule, value, callback) => {
     if(value < 1){
       callback(new Error('The estimate must ranges from 1 to 5'));
@@ -56,16 +57,6 @@
     data: () => ({
       dialogVisible: false,
       formLabelWidth: '120px',
-      todayTasks:[
-        {
-          id: 1,
-          title:"学习Nengo",
-          desc:"今天要学习nengo",
-          startTime:0,
-          basicTimeUnit:45,
-          estimate:1
-        }
-      ],
       form: {
         title: '',
         desc: '',
@@ -84,11 +75,17 @@
         ],
       }
     }),
-    computed: { },
-    created () {
-      console.log('New tab')
+    computed: { 
+      todayTasks(){
+        return this.$store.getters.todayTasks;
+      }
     },
-    mounted () { },
+    created () {
+      // console.log('New tab')
+    },
+    mounted () { 
+      console.log(this.$route)
+    },
     methods: {
       router(route){
         this.$router.push(route)
@@ -96,9 +93,26 @@
         // console.log(curUrl);
       },
       ensureAddTask(formName){
+        let vm = this;
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            
+            let task = {
+              id: utils.getGUID(),
+              title: vm.form.title,
+              desc:vm.form.desc,
+              estimate:vm.form.estimate,
+              basicTimeUnit: 45,
+              finished: 0,
+              state:"prepare",
+              createdTime:new Date().getTime()
+            }
+            // console.log(task);
+            if(utils.checkTask(task)){
+              vm.$store.dispatch('addTodayTask',task)
+              vm.$store.dispatch('saveTodayTasks')
+              vm.dialogVisible = false;
+            }
+            return true;
           } else {
             return false;
           }
@@ -107,6 +121,7 @@
       addTask(){
         this.dialogVisible = true;
       }
+
     }
   }
 </script>
@@ -137,6 +152,7 @@
     &-list {
       margin-top: 10px;
       &__item {
+        margin: 10px 0 0 10px;
         padding: 0 10px;
         background: rgb(7, 27, 25);
         height: 300px;

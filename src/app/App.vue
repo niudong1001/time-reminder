@@ -6,7 +6,12 @@
 
 <script>
 export default {
-  name: 'app'
+  name: 'app',
+  mounted(){
+    // this.$store.dispatch('rmAllTasks')
+    this.$store.dispatch('loadTodayTasks',()=>{
+    }) 
+  }
 }
 </script>
 

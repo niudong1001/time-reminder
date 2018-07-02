@@ -255,6 +255,229 @@ if (false) {
 
 /***/ }),
 
+/***/ 205:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage}
+ */
+/* harmony default export */ __webpack_exports__["a"] = ({
+  getSyncStorage: function getSyncStorage(key, callback) {
+    chrome.storage.sync.get(key, function (result) {
+      console.log(key + ' value currently is(sync): ');
+      console.log(result);
+      if (callback) {
+        callback(result);
+      }
+    });
+  },
+  setSyncStorage: function setSyncStorage(obj, callback) {
+    chrome.storage.sync.set(obj, function () {
+      console.log('Obj is saved(sync):');
+      console.log(obj);
+      if (callback) {
+        callback();
+      }
+    });
+  },
+  rmSyncStorage: function rmSyncStorage(key, callback) {
+    chrome.storage.sync.remove(key, function () {
+      // console.log(key + ' is removed from storage');
+      if (callback) {
+        callback();
+      }
+    });
+  },
+  getLocalStorage: function getLocalStorage(key, callback) {
+    chrome.storage.local.get(key, function (result) {
+      console.log(key + ' value currently is(local): ');
+      console.log(result);
+      if (callback) {
+        callback(result);
+      }
+    });
+  },
+  setLocalStorage: function setLocalStorage(obj, callback) {
+    chrome.storage.local.set(obj, function () {
+      console.log('Obj is saved(local):');
+      console.log(obj);
+      if (callback) {
+        callback();
+      }
+    });
+  },
+  rmLocalStorage: function rmLocalStorage(key, callback) {
+    chrome.storage.local.remove(key, function () {
+      // console.log(key + ' is removed from storage');
+      if (callback) {
+        callback();
+      }
+    });
+  }
+});
+
+/***/ }),
+
+/***/ 210:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify__ = __webpack_require__(212);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuex__ = __webpack_require__(211);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ext_storage__ = __webpack_require__(205);
+
+
+
+
+
+__WEBPACK_IMPORTED_MODULE_1_vue__["default"].use(__WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */]);
+
+/* harmony default export */ __webpack_exports__["a"] = (new __WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */].Store({
+    state: {
+        todayTasks: [], // 今日的任务
+        allTasks: [], // 历史所有任务
+        loadTodayTasksOk: false, // 加载今日任务OK
+        loadAllTasksOk: false // 加载所有任务OK
+    },
+    // 更新state的唯一方法，不可以包含异步操作
+    mutations: {
+        addTodayTask: function addTodayTask(state, task) {
+            state.todayTasks.push(task);
+        },
+        updateTodayTask: function updateTodayTask(state, taskId, task) {
+            var tasks = state.todayTasks;
+            var l = tasks.length;
+            for (var i = 0; i < l; i++) {
+                if (tasks[i]["id"] == taskId) {
+                    tasks.splice(i, 1, task);
+                }
+            }
+        },
+        addAllTask: function addAllTask(state, task) {
+            state.allTasks.push(task);
+        },
+        setTTask: function setTTask(state, ok) {
+            state.loadTodayTasksOk = ok;
+        },
+        setATask: function setATask(state, ok) {
+            state.loadAllTasksOk = ok;
+        }
+    },
+    // 可以包含异步操作，调用mutations
+    actions: {
+        loadTodayTasks: function loadTodayTasks(_ref, callback) {
+            var commit = _ref.commit;
+
+            __WEBPACK_IMPORTED_MODULE_3__ext_storage__["a" /* default */].getSyncStorage("timeReminder_todayDB", function (v) {
+                // console.log(v);
+                var dd = v["timeReminder_todayDB"];
+                if (dd) {
+                    var dbToday = JSON.parse(dd);
+                    if (dbToday) {
+                        dbToday.forEach(function (element) {
+                            commit("addTodayTask", element);
+                        });
+                    }
+                }
+                commit("setTTask", true); // ok
+                // console.log("1")
+                if (callback) {
+                    callback();
+                }
+            });
+        },
+
+        // 可能很慢
+        loadAllTasks: function loadAllTasks(_ref2, callback) {
+            var commit = _ref2.commit;
+
+            __WEBPACK_IMPORTED_MODULE_3__ext_storage__["a" /* default */].getSyncStorage("timeReminder_allDB", function (v) {
+                // console.log(v);
+                var dd = v["timeReminder_allDB"];
+                if (dd) {
+                    var dbAll = JSON.parse(v["timeReminder_allDB"]);
+                    if (dbAll) {
+                        dbAll.forEach(function (element) {
+                            commit("addAllTask", element);
+                        });
+                    }
+                }
+                commit("setATask", true); // ok
+                // console.log("1")
+                if (callback) {
+                    callback();
+                }
+            });
+        },
+
+        // 不一定需要load好使用
+        addTodayTask: function addTodayTask(_ref3, task) {
+            var commit = _ref3.commit;
+
+            // console.log(task)
+            if (task) {
+                // console.log("2")
+                commit("addTodayTask", task);
+                // console.log("3");
+            }
+        },
+
+        // 关闭window调用
+        saveTodayTasks: function saveTodayTasks(_ref4) {
+            var getters = _ref4.getters;
+
+            var dbToday = getters.todayTasks;
+            // let dbAll = getters.allTasks;
+            var dataObj = {
+                "timeReminder_todayDB": __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify___default()(dbToday)
+                // "timeReminder_allDB":JSON.stringify(dbAll)
+            };
+            __WEBPACK_IMPORTED_MODULE_3__ext_storage__["a" /* default */].setSyncStorage(dataObj);
+        },
+        rmAllTasks: function rmAllTasks() {
+            __WEBPACK_IMPORTED_MODULE_3__ext_storage__["a" /* default */].rmSyncStorage(["timeReminder_todayDB", "timeReminder_allDB"]);
+        }
+    },
+    getters: {
+        todayTasks: function todayTasks(state) {
+            return state.todayTasks;
+        },
+        allTasks: function allTasks(state) {
+            return state.allTasks;
+        }
+    }
+}));
+
+/***/ }),
+
+/***/ 214:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    getGUID: function getGUID() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c == 'x' ? r : r & 0x3 | 0x8).toString(16);
+        });
+        return uuid;
+    },
+    checkTask: function checkTask(task) {
+        if (task && task.title) {
+            return true;
+        }
+        return false;
+    }
+});
+
+/***/ }),
+
 /***/ 50:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -267,7 +490,11 @@ if (false) {
 //
 
 /* harmony default export */ __webpack_exports__["a"] = ({
-  name: 'app'
+  name: 'app',
+  mounted: function mounted() {
+    // this.$store.dispatch('rmAllTasks')
+    this.$store.dispatch('loadTodayTasks', function () {});
+  }
 });
 
 /***/ }),
@@ -276,6 +503,7 @@ if (false) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ext_utils__ = __webpack_require__(214);
 //
 //
 //
@@ -321,6 +549,7 @@ if (false) {
 //
 //
 //
+
 
 var validatePass = function validatePass(rule, value, callback) {
   if (value < 1) {
@@ -334,14 +563,6 @@ var validatePass = function validatePass(rule, value, callback) {
     return {
       dialogVisible: false,
       formLabelWidth: '120px',
-      todayTasks: [{
-        id: 1,
-        title: "学习Nengo",
-        desc: "今天要学习nengo",
-        startTime: 0,
-        basicTimeUnit: 45,
-        estimate: 1
-      }],
       form: {
         title: '',
         desc: '',
@@ -356,11 +577,17 @@ var validatePass = function validatePass(rule, value, callback) {
       }
     };
   },
-  computed: {},
-  created: function created() {
-    console.log('New tab');
+  computed: {
+    todayTasks: function todayTasks() {
+      return this.$store.getters.todayTasks;
+    }
   },
-  mounted: function mounted() {},
+  created: function created() {
+    // console.log('New tab')
+  },
+  mounted: function mounted() {
+    console.log(this.$route);
+  },
 
   methods: {
     router: function router(route) {
@@ -369,8 +596,26 @@ var validatePass = function validatePass(rule, value, callback) {
       // console.log(curUrl);
     },
     ensureAddTask: function ensureAddTask(formName) {
+      var vm = this;
       this.$refs[formName].validate(function (valid) {
-        if (valid) {} else {
+        if (valid) {
+          var task = {
+            id: __WEBPACK_IMPORTED_MODULE_0__ext_utils__["a" /* default */].getGUID(),
+            title: vm.form.title,
+            desc: vm.form.desc,
+            estimate: vm.form.estimate,
+            basicTimeUnit: 45,
+            finished: 0,
+            state: "prepare",
+            createdTime: new Date().getTime()
+            // console.log(task);
+          };if (__WEBPACK_IMPORTED_MODULE_0__ext_utils__["a" /* default */].checkTask(task)) {
+            vm.$store.dispatch('addTodayTask', task);
+            vm.$store.dispatch('saveTodayTasks');
+            vm.dialogVisible = false;
+          }
+          return true;
+        } else {
           return false;
         }
       });
@@ -437,30 +682,51 @@ var validatePass = function validatePass(rule, value, callback) {
 /* harmony default export */ __webpack_exports__["a"] = ({
   data: function data() {
     return {
-      task: {
-        id: 1,
-        title: "学习Nengo",
-        desc: "今天要学习nengo",
-        startTime: __WEBPACK_IMPORTED_MODULE_0_miment___default()().stamp(),
-        basicTimeUnit: 45, // 45分钟
-        estimate: 1,
-        finished: 0,
-        state: "prepare" // prepare, started, finished
-      },
+      // task:{
+      //   id: 1,
+      //   title:"学习Nengo",
+      //   desc:"今天要学习nengo",
+      //   startTime:miment().stamp(),
+      //   basicTimeUnit:45,  // 45分钟
+      //   estimate:1,
+      //   finished:0,
+      //   state:"prepare"  // prepare, started, finished
+      // },
+      // task:{},
       myAudio: null,
       notification_id: null,
-      startCountdown: false
+      startCountdown: false,
+      startTime: __WEBPACK_IMPORTED_MODULE_0_miment___default()().stamp(),
+      _task: {}
     };
   },
   computed: {
+    taskId: function taskId() {
+      return this.$route.params.taskId;
+    },
+    task: function task() {
+      var taskId = this.$route.params.taskId;
+      var todayTasks = this.$store.getters.todayTasks;
+      console.log(taskId, todayTasks);
+      var temp = {};
+      todayTasks.forEach(function (elem) {
+        if (elem.id == taskId) {
+          console.log(elem);
+          temp = elem;
+        }
+      });
+      this._task = temp;
+      return temp;
+    },
     endTime: function endTime() {
-      return (this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000 + 1 * 1000).toString();
+      return (this.task.startTime + 1 * 1 * 1 * 1000 + 1 * 1000).toString();
     }
   },
   created: function created() {
-    console.log('New tab');
+    // console.log('New tab')
   },
   mounted: function mounted() {
+    // console.log(this.task)
     // let lastTime = this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000;
     // let count = new Countdown(document.getElementById('countdown'),{
     //   format: "mm:ss",
@@ -468,7 +734,9 @@ var validatePass = function validatePass(rule, value, callback) {
     // });
   },
   beforeDestroy: function beforeDestroy() {
-    this.closeSound();
+    if (this.myAudio) {
+      this.closeSound();
+    }
   },
 
   methods: {
@@ -491,13 +759,13 @@ var validatePass = function validatePass(rule, value, callback) {
     closeSound: function closeSound() {
       this.myAudio.pause();
       this.myAudio.load();
-      console.log(this.notification_id);
+      // console.log(this.notification_id)
       chrome.notifications.clear(this.notification_id);
     },
     timeEndCallback: function timeEndCallback() {
       var _this = this;
 
-      console.log("倒计时到了！");
+      // console.log("倒计时到了！")
       // type, iconUrl, title and message.
       var opt = {
         type: 'basic',
@@ -508,11 +776,14 @@ var validatePass = function validatePass(rule, value, callback) {
         iconUrl: '../images/timeUp.jpg',
         requireInteraction: true
       };
+      // console.log(this._task)
+      this._task.finished += 1;
+      this.$store.commit("updateTodayTask", this.taskId, this._task);
       this.myAudio = new Audio();
       this.myAudio.src = "../audios/audio.aac";
       this.myAudio.play();
       chrome.notifications.create(null, opt, function (id) {
-        console.log(id);
+        // console.log(id);
         _this.notification_id = id;
       });
       chrome.notifications.onClosed.addListener(function () {
@@ -627,11 +898,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__App_vue__ = __webpack_require__(83);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__router__ = __webpack_require__(88);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_element_ui__ = __webpack_require__(100);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_element_ui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_element_ui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__styles_styles_scss__ = __webpack_require__(178);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__styles_styles_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__styles_styles_scss__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_Countdown__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__store__ = __webpack_require__(210);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_element_ui__ = __webpack_require__(100);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_element_ui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_element_ui__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__styles_styles_scss__ = __webpack_require__(178);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__styles_styles_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__styles_styles_scss__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_Countdown__ = __webpack_require__(186);
+
 
 
 
@@ -641,13 +914,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 __WEBPACK_IMPORTED_MODULE_0_vue__["default"].config.productionTip = false;
 
-__WEBPACK_IMPORTED_MODULE_0_vue__["default"].use(__WEBPACK_IMPORTED_MODULE_3_element_ui___default.a);
+__WEBPACK_IMPORTED_MODULE_0_vue__["default"].use(__WEBPACK_IMPORTED_MODULE_4_element_ui___default.a);
 
-__WEBPACK_IMPORTED_MODULE_0_vue__["default"].component("count-down", __WEBPACK_IMPORTED_MODULE_5__components_Countdown__["a" /* default */]);
+__WEBPACK_IMPORTED_MODULE_0_vue__["default"].component("count-down", __WEBPACK_IMPORTED_MODULE_6__components_Countdown__["a" /* default */]);
 
 new __WEBPACK_IMPORTED_MODULE_0_vue__["default"]({ // eslint-disable-line no-new
   el: '#app',
   router: __WEBPACK_IMPORTED_MODULE_2__router__["a" /* default */],
+  store: __WEBPACK_IMPORTED_MODULE_3__store__["a" /* default */],
   render: function render(h) {
     return h(__WEBPACK_IMPORTED_MODULE_1__App_vue__["a" /* default */]);
   }
@@ -750,7 +1024,7 @@ exports = module.exports = __webpack_require__(10)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -802,7 +1076,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue__["default"].use(__WEBPACK_IMPORTED_MODULE_1_vue
     name: 'TodayTasks',
     component: __WEBPACK_IMPORTED_MODULE_2__components_TodayTasks__["a" /* default */]
   }, {
-    path: '/Task',
+    path: '/Task/:taskId',
     name: 'Task',
     component: __WEBPACK_IMPORTED_MODULE_3__components_Task__["a" /* default */]
   }, {
@@ -914,7 +1188,7 @@ exports = module.exports = __webpack_require__(10)(false);
 
 
 // module
-exports.push([module.i, "\n.el-dialog {\n  font-weight: 600;\n}\n.el-input__inner, .el-textarea__inner {\n  font-family: \"Courier New\", Courier, monospace;\n  border-color: #888;\n  color: #000;\n}\n.el-input__inner:hover, .el-textarea__inner:hover {\n  border-color: #666;\n}\n.el-slider__runway {\n  background-color: #aaa;\n}\n.el-form-item__label {\n  color: #000;\n}\n.todayTasks-list {\n  margin-top: 10px;\n}\n.todayTasks-list__item {\n    padding: 0 10px;\n    background: #071b19;\n    height: 300px;\n    position: relative;\n    border: 2px solid #071b19;\n}\n.todayTasks-list__item:hover {\n      border: 2px solid #397a6d;\n}\n.todayTasks-list__item-title {\n      font-size: 20px;\n      margin: 10px 0;\n}\n.todayTasks-list__item-desc {\n      font-size: 14px;\n      min-height: 200px;\n}\n.todayTasks-list__item-icons {\n      position: absolute;\n      width: 100%;\n      bottom: 10px;\n      right: 10px;\n      font-size: 18px;\n      text-align: right;\n}\n.todayTasks-list__item-icons__item {\n        margin-left: 5px;\n}\n", ""]);
+exports.push([module.i, "\n.el-dialog {\n  font-weight: 600;\n}\n.el-input__inner, .el-textarea__inner {\n  font-family: \"Courier New\", Courier, monospace;\n  border-color: #888;\n  color: #000;\n}\n.el-input__inner:hover, .el-textarea__inner:hover {\n  border-color: #666;\n}\n.el-slider__runway {\n  background-color: #aaa;\n}\n.el-form-item__label {\n  color: #000;\n}\n.todayTasks-list {\n  margin-top: 10px;\n}\n.todayTasks-list__item {\n    margin: 10px 0 0 10px;\n    padding: 0 10px;\n    background: #071b19;\n    height: 300px;\n    position: relative;\n    border: 2px solid #071b19;\n}\n.todayTasks-list__item:hover {\n      border: 2px solid #397a6d;\n}\n.todayTasks-list__item-title {\n      font-size: 20px;\n      margin: 10px 0;\n}\n.todayTasks-list__item-desc {\n      font-size: 14px;\n      min-height: 200px;\n}\n.todayTasks-list__item-icons {\n      position: absolute;\n      width: 100%;\n      bottom: 10px;\n      right: 10px;\n      font-size: 18px;\n      text-align: right;\n}\n.todayTasks-list__item-icons__item {\n        margin-left: 5px;\n}\n", ""]);
 
 // exports
 
@@ -969,7 +1243,7 @@ var render = function() {
                   staticClass: "todayTasks-list__item-title c-color--primary",
                   on: {
                     click: function($event) {
-                      _vm.router({ name: "Task" })
+                      _vm.router({ name: "Task", params: { taskId: task.id } })
                     }
                   }
                 },
@@ -982,7 +1256,7 @@ var render = function() {
                   staticClass: "todayTasks-list__item-desc",
                   on: {
                     click: function($event) {
-                      _vm.router({ name: "Task" })
+                      _vm.router({ name: "Task", params: { taskId: task.id } })
                     }
                   }
                 },
@@ -996,7 +1270,7 @@ var render = function() {
                     staticClass:
                       "el-icon-circle-check-outline todayTasks-list__item-icons__item"
                   },
-                  [_vm._v("2")]
+                  [_vm._v(_vm._s(task.estimate))]
                 ),
                 _c(
                   "i",
@@ -1004,7 +1278,7 @@ var render = function() {
                     staticClass:
                       "el-icon-circle-check todayTasks-list__item-icons__item"
                   },
-                  [_vm._v("1")]
+                  [_vm._v(_vm._s(task.finished))]
                 )
               ])
             ]
@@ -1291,7 +1565,9 @@ var render = function() {
         }
       }),
       _vm._v(" "),
-      _c("span", { staticClass: "c-color--primary" }, [_vm._v("TimeReminder")])
+      _c("span", { staticClass: "c-color--primary" }, [
+        _vm._v(_vm._s(_vm.task.title))
+      ])
     ]),
     _vm._v(" "),
     _c(
@@ -1348,7 +1624,9 @@ var render = function() {
             ]),
             _vm._v(" "),
             _c("el-col", { staticClass: "task-item", attrs: { span: 4 } }, [
-              _c("span", { staticClass: "task-item__desc" }, [_vm._v("学习")])
+              _c("span", { staticClass: "task-item__desc" }, [
+                _vm._v(_vm._s(_vm.task.desc))
+              ])
             ]),
             _vm._v(" "),
             _c("el-col", { staticClass: "task-item", attrs: { span: 10 } }, [
@@ -1359,7 +1637,9 @@ var render = function() {
                       "el-icon-circle-check-outline task-item__statistics__item-icon"
                   }),
                   _vm._v(" "),
-                  _c("span", [_vm._v("Estimated  1")])
+                  _c("span", [
+                    _vm._v("Estimated  " + _vm._s(_vm.task.estimate))
+                  ])
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "task-item__statistics__item" }, [
@@ -1368,7 +1648,9 @@ var render = function() {
                       "el-icon-circle-check task-item__statistics__item-icon"
                   }),
                   _vm._v(" "),
-                  _c("span", [_vm._v("Completed  2")])
+                  _c("span", [
+                    _vm._v("Completed  " + _vm._s(_vm.task.finished))
+                  ])
                 ])
               ])
             ])

@@ -13,7 +13,7 @@ export default new Router({
       component: TodayTasks
     },
     {
-      path: '/Task',
+      path: '/Task/:taskId',
       name: 'Task',
       component: Task
     },

@@ -2,7 +2,7 @@
   <div>
     <h1 class="c-title">
       <i class="el-icon-back c-title__back" :class="task.state=='started'?'c-title__back--hide':''"  @click="task.state!='started'&&$router.go(-1)"></i> 
-      <span class="c-color--primary">TimeReminder</span>  
+      <span class="c-color--primary">{{task.title}}</span>  
     </h1>
     <div class="task">
       <el-row>
@@ -20,17 +20,17 @@
           </span>  
         </el-col>
         <el-col :span="4" class="task-item">
-          <span class="task-item__desc">学习</span>
+          <span class="task-item__desc">{{task.desc}}</span>
         </el-col>
         <el-col :span="10" class="task-item">
           <div class="task-item__statistics">
             <div class="task-item__statistics__item">
               <i class="el-icon-circle-check-outline task-item__statistics__item-icon"></i>
-              <span>Estimated  1</span>
+              <span>Estimated  {{task.estimate}}</span>
             </div>
             <div class="task-item__statistics__item">
               <i class="el-icon-circle-check task-item__statistics__item-icon"></i>
-              <span>Completed  2</span>
+              <span>Completed  {{task.finished}}</span>
             </div>
           </div>
         </el-col>
@@ -44,30 +44,51 @@
   export default {
     data: () => (
       {
-        task:{
-          id: 1,
-          title:"学习Nengo",
-          desc:"今天要学习nengo",
-          startTime:miment().stamp(),
-          basicTimeUnit:45,  // 45分钟
-          estimate:1,
-          finished:0,
-          state:"prepare"  // prepare, started, finished
-        },
+        // task:{
+        //   id: 1,
+        //   title:"学习Nengo",
+        //   desc:"今天要学习nengo",
+        //   startTime:miment().stamp(),
+        //   basicTimeUnit:45,  // 45分钟
+        //   estimate:1,
+        //   finished:0,
+        //   state:"prepare"  // prepare, started, finished
+        // },
+        // task:{},
         myAudio:null,
         notification_id: null,
-        startCountdown:false
+        startCountdown:false,
+        startTime:miment().stamp(),
+        _task:{}
       }
     ),
     computed: { 
+      taskId(){
+        return this.$route.params.taskId;
+      },
+      task(){
+        let taskId = this.$route.params.taskId;
+        let todayTasks = this.$store.getters.todayTasks;
+        console.log(taskId, todayTasks)
+        let temp = {}
+        todayTasks.forEach(elem => {
+          if(elem.id == taskId){
+            console.log(elem)
+            temp = elem
+          }
+        });
+        this._task = temp;
+        return temp;
+      },
       endTime(){
-        return (this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000 + 1*1000).toString();
+        return (this.task.startTime + 1 * 1 * 1 * 1000 + 1*1000).toString();
       }
     },
     created () {
-      console.log('New tab')
+      // console.log('New tab')
     },
     mounted () { 
+      // console.log(this.task)
       // let lastTime = this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000;
       // let count = new Countdown(document.getElementById('countdown'),{
       //   format: "mm:ss",
@@ -75,7 +96,9 @@
       // });
     },
     beforeDestroy(){
-      this.closeSound();
+      if(this.myAudio){
+        this.closeSound();
+      }
     },
     methods: {
       changeTaskState(state){
@@ -100,11 +123,11 @@
       closeSound(){
         this.myAudio.pause();
         this.myAudio.load();
-        console.log(this.notification_id)
+        // console.log(this.notification_id)
         chrome.notifications.clear(this.notification_id);
       },
       timeEndCallback(){
-        console.log("倒计时到了！")
+        // console.log("倒计时到了！")
         // type, iconUrl, title and message.
         var opt = {
             type: 'basic',
@@ -115,11 +138,14 @@
             iconUrl:'../images/timeUp.jpg',
             requireInteraction:true
         };
+        // console.log(this._task)
+        this._task.finished += 1;
+        this.$store.commit("updateTodayTask",this.taskId, this._task);
         this.myAudio = new Audio();
         this.myAudio.src = "../audios/audio.aac";
         this.myAudio.play();
         chrome.notifications.create(null, opt, (id)=>{
-          console.log(id);
+          // console.log(id);
           this.notification_id = id;
         });
         chrome.notifications.onClosed.addListener(()=>{
