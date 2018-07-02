@@ -3,9 +3,10 @@
     <h1 class="c-title">
       <i class="el-icon-back c-title__back"></i> 
       <span class="c-color--primary">For Today</span>  
-      <i class="el-icon-circle-plus-outline c-title__btn" @click="addTask">
+      <span class="c-title__btn" @click="addTask">
+        <i class="el-icon-circle-plus-outline c-title__btn-icon"></i>
         Add Task
-      </i>
+      </span>
     </h1>
     <el-row class="todayTasks-list">
       <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks" >

@@ -67,51 +67,19 @@ var background =
 webpackJsonp_name_([4],{
 
 /***/ 204:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ext_storage__ = __webpack_require__(205);
+
 
 
 var is_running = false; // 避免连续点击
 
-// 获得user_data
-function getSyncStorage(key, callback) {
-  chrome.storage.sync.get(key, function (result) {
-    console.log(key + ' value currently is: ');
-    console.log(result);
-    if (callback) {
-      callback(result);
-    }
-  });
-}
-
-// 设置user_data
-function setSyncStorage(obj, callback) {
-  chrome.storage.sync.set(obj, function () {
-    console.log('Obj is saved:');
-    console.log(obj);
-    if (chrome.runtime.lastError) {
-      console.log('存储出错！');
-    }
-    if (callback) {
-      callback();
-    }
-  });
-}
-
-// 移除user_data
-function rmStorage(key, callback) {
-  chrome.storage.sync.remove(key, function () {
-    // console.log(key + ' is removed from storage');
-    if (callback) {
-      callback();
-    }
-  });
-}
-
 // 移除存入storage的window
 function rm_window() {
-  rmStorage(['TimeReminder']);
+  __WEBPACK_IMPORTED_MODULE_0__ext_storage__["a" /* default */].rmLocalStorage(['TimeReminderWinId']);
 }
 
 chrome.runtime.onInstalled.addListener(function (details) {
@@ -119,15 +87,12 @@ chrome.runtime.onInstalled.addListener(function (details) {
   rm_window();
 });
 
-// chrome.browserAction.setBadgeText({ });
-
 // 点击图标执行
 chrome.browserAction.onClicked.addListener(function (tab) {
-  console.log(is_running);
   // 首先获得window_id
-  getSyncStorage(['TimeReminder'], function (res) {
+  __WEBPACK_IMPORTED_MODULE_0__ext_storage__["a" /* default */].getLocalStorage(['TimeReminderWinId'], function (res) {
     // console.log(window_id)
-    var windowId = res['TimeReminder'];
+    var windowId = res['TimeReminderWinId'];
     if (windowId) {
       // 获得焦点
       chrome.windows.update(windowId, {
@@ -135,15 +100,14 @@ chrome.browserAction.onClicked.addListener(function (tab) {
       });
     } else if (!is_running) {
       is_running = true;
-      chrome.windows.create({ url: chrome.runtime.getURL('pages/app.html'), type: "popup" }, function (win) {
+      chrome.windows.create({ url: chrome.runtime.getURL('pages/app.html') }, function (win) {
         // 回传创建的window对象
         // window_id = win.id;
         var saved_data = {
-          'TimeReminder': win.id
+          'TimeReminderWinId': win.id
         };
-        setSyncStorage(saved_data, function () {
+        __WEBPACK_IMPORTED_MODULE_0__ext_storage__["a" /* default */].setLocalStorage(saved_data, function () {
           is_running = false;
-          getSyncStorage(['TimeReminder']);
         });
       });
     }
@@ -153,8 +117,8 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 // 目标窗口被移除
 chrome.windows.onRemoved.addListener(function (winid) {
   // console.log(winid)
-  getSyncStorage(['TimeReminder'], function (res) {
-    var windowId = res['TimeReminder'];
+  __WEBPACK_IMPORTED_MODULE_0__ext_storage__["a" /* default */].getLocalStorage(['TimeReminderWinId'], function (res) {
+    var windowId = res['TimeReminderWinId'];
     if (windowId == winid) {
       rm_window();
     }
@@ -192,6 +156,70 @@ chrome.webRequest.onBeforeRequest.addListener(function (info) {
 }, {
   urls: ["chrome-extension://" + chrome.runtime.id + "/*"]
 }, ["blocking"]);
+
+/***/ }),
+
+/***/ 205:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage}
+ */
+/* harmony default export */ __webpack_exports__["a"] = ({
+  getSyncStorage: function getSyncStorage(key, callback) {
+    chrome.storage.sync.get(key, function (result) {
+      console.log(key + ' value currently is(sync): ');
+      console.log(result);
+      if (callback) {
+        callback(result);
+      }
+    });
+  },
+  setSyncStorage: function setSyncStorage(obj, callback) {
+    chrome.storage.sync.set(obj, function () {
+      console.log('Obj is saved(sync):');
+      console.log(obj);
+      if (callback) {
+        callback();
+      }
+    });
+  },
+  rmSyncStorage: function rmSyncStorage(key, callback) {
+    chrome.storage.sync.remove(key, function () {
+      // console.log(key + ' is removed from storage');
+      if (callback) {
+        callback();
+      }
+    });
+  },
+  getLocalStorage: function getLocalStorage(key, callback) {
+    chrome.storage.local.get(key, function (result) {
+      console.log(key + ' value currently is(local): ');
+      console.log(result);
+      if (callback) {
+        callback(result);
+      }
+    });
+  },
+  setLocalStorage: function setLocalStorage(obj, callback) {
+    chrome.storage.local.set(obj, function () {
+      console.log('Obj is saved(local):');
+      console.log(obj);
+      if (callback) {
+        callback();
+      }
+    });
+  },
+  rmLocalStorage: function rmLocalStorage(key, callback) {
+    chrome.storage.local.remove(key, function () {
+      // console.log(key + ' is removed from storage');
+      if (callback) {
+        callback();
+      }
+    });
+  }
+});
 
 /***/ })
 

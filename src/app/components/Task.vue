@@ -1,25 +1,39 @@
 <template>
   <div>
     <h1 class="c-title">
-      <i class="el-icon-back c-title__back" @click="$router.go(-1)"></i> 
-      <span class="c-color--primary">测试</span>  
+      <i class="el-icon-back c-title__back" :class="task.state=='started'?'c-title__back--hide':''"  @click="task.state!='started'&&$router.go(-1)"></i> 
+      <span class="c-color--primary">TimeReminder</span>  
     </h1>
     <div class="task">
       <el-row>
         <el-col :span="4" class="task-item f-tc">
-          <span class="icon-play-circle task-item__icon"></span>
+          <span class="icon-stop-circle task-item__icon" title="stop" v-if="task.state=='started'" @click="changeTaskState('prepare')"></span>
+          <span class="icon-play-circle task-item__icon" title="start" v-else @click="changeTaskState('started')"></span>
         </el-col>
         <el-col :span="6" class="task-item">
           <span class="task-item__time" id="countdown">
-            <count-down :endTime="endTime" :timeUnit="task.basicTimeUnit" :callback="timeEndCallback" endText="00:00">
-                
+            <count-down v-if="task.state=='started'" :endTime="endTime" :timeUnit="task.basicTimeUnit" :callback="timeEndCallback" endText="00:00">
             </count-down>  
+            <span v-else>
+              00:00
+            </span>
           </span>  
         </el-col>
         <el-col :span="4" class="task-item">
           <span class="task-item__desc">学习</span>
         </el-col>
-        <el-col :span="10" class="task-item"></el-col>
+        <el-col :span="10" class="task-item">
+          <div class="task-item__statistics">
+            <div class="task-item__statistics__item">
+              <i class="el-icon-circle-check-outline task-item__statistics__item-icon"></i>
+              <span>Estimated  1</span>
+            </div>
+            <div class="task-item__statistics__item">
+              <i class="el-icon-circle-check task-item__statistics__item-icon"></i>
+              <span>Completed  2</span>
+            </div>
+          </div>
+        </el-col>
       </el-row>
     </div>
   </div>
@@ -29,21 +43,25 @@
   import Countdown from "js-countdown";
   export default {
     data: () => (
-    {
-      task:{
-        id: 1,
-        title:"学习Nengo",
-        desc:"今天要学习nengo",
-        startTime:miment().stamp(),
-        basicTimeUnit:1,  // 45分钟
-        estimate:1
-      },
-      myAudio:null,
-      notification_id: null
-    }),
+      {
+        task:{
+          id: 1,
+          title:"学习Nengo",
+          desc:"今天要学习nengo",
+          startTime:miment().stamp(),
+          basicTimeUnit:45,  // 45分钟
+          estimate:1,
+          finished:0,
+          state:"prepare"  // prepare, started, finished
+        },
+        myAudio:null,
+        notification_id: null,
+        startCountdown:false
+      }
+    ),
     computed: { 
       endTime(){
-        return (this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 1 * 1000).toString();
+        return (this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000 + 1*1000).toString();
       }
     },
     created () {
@@ -60,6 +78,25 @@
       this.closeSound();
     },
     methods: {
+      changeTaskState(state){
+        let vm=this;
+        if(state=="prepare"){
+          this.$confirm('You want stop the task?', 'Info', {
+            confirmButtonText: 'ensure',
+            cancelButtonText: "cancel",
+            type: 'warning'
+          }).then(() => {
+            vm.task.state = state;
+            vm.task.startTime = miment().stamp();
+          }).catch(() => {
+                     
+          });
+        }
+        else{
+          vm.task.state = state;
+          vm.task.startTime = miment().stamp();
+        }
+      },
       closeSound(){
         this.myAudio.pause();
         this.myAudio.load();
@@ -104,6 +141,10 @@
         font-size: 50px;
         line-height: 240px;
         color:#ccc;
+        cursor: pointer;
+        &:hover {
+          color: #eee;
+        }
       }
       &__time {
         font-size: 100px;
@@ -114,6 +155,21 @@
         font-size: 14px;
         display: inline-block;
         margin: 90px 0;
+      }
+      &__statistics {
+        color:#eee;
+        margin: 85px 0;
+        text-align: left;
+        &__item {
+          width: 35%;
+          text-align: right;
+          font-size: 18px;
+          font-weight: 600;
+          margin-top: 10px;
+          &-icon {
+            font-size: 24px;
+          }
+        }
       }
     }
   }

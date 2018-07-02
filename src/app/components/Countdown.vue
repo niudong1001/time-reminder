@@ -1,7 +1,7 @@
 <template>  
   <span :endTime="endTime" :callback="callback" :endText="endText">  
     <slot>  
-      {{content||this.timeUnit+":00"}}  
+      {{content||"00:00"}}  
     </slot>  
   </span>  
 </template>  
@@ -28,7 +28,7 @@
       callback : {  
         type : Function,  
         default :''  
-      }  
+      } 
     },  
     mounted () {  
      this.countdowm(this.endTime)  
