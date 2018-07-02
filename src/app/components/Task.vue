@@ -10,7 +10,11 @@
           <span class="icon-play-circle task-item__icon"></span>
         </el-col>
         <el-col :span="6" class="task-item">
-          <span class="task-item__time">33:33</span>  
+          <span class="task-item__time" id="countdown">
+            <count-down :endTime="endTime" :timeUnit="task.basicTimeUnit" :callback="timeEndCallback" endText="00:00">
+                
+            </count-down>  
+          </span>  
         </el-col>
         <el-col :span="4" class="task-item">
           <span class="task-item__desc">学习</span>
@@ -21,63 +25,69 @@
   </div>
 </template>
 <script>
-  var validatePass = (rule, value, callback) => {
-    if(value < 1){
-      callback(new Error('The estimate must ranges from 1 to 5'));
-    }
-    else {
-      callback();
-    }
-  };
+  import miment from 'miment'
+  import Countdown from "js-countdown";
   export default {
-    data: () => ({
-      dialogVisible: false,
-      formLabelWidth: '120px',
-      todayTasks:[
-        {
-          id: 1,
-          title:"学习Nengo",
-          desc:"今天要学习nengo",
-          startTime:0,
-          basicTimeUnit:45,
-          estimate:1
-        }
-      ],
-      form: {
-        title: '',
-        desc: '',
-        estimate: 1
+    data: () => (
+    {
+      task:{
+        id: 1,
+        title:"学习Nengo",
+        desc:"今天要学习nengo",
+        startTime:miment().stamp(),
+        basicTimeUnit:1,  // 45分钟
+        estimate:1
       },
-      rules: {
-        title: [
-          { required: true, message: 'You must input task title', trigger: 'blur' },
-        ],
-        desc: [
-          // { required: true, message: '请选择活动区域', trigger: 'change' }
-        ],
-        estimate: [
-          { validator: validatePass, trigger: 'change' },
-          { required: true, message: 'You must input task estimate', trigger: 'blur'},
-        ],
-      }
+      myAudio:null,
+      notification_id: null
     }),
-    computed: { },
+    computed: { 
+      endTime(){
+        return (this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 1 * 1000).toString();
+      }
+    },
     created () {
       console.log('New tab')
     },
-    mounted () { },
+    mounted () { 
+      // let lastTime = this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000;
+      // let count = new Countdown(document.getElementById('countdown'),{
+      //   format: "mm:ss",
+      //   lastTime: lastTime
+      // });
+    },
+    beforeDestroy(){
+      this.closeSound();
+    },
     methods: {
-      ensureAddTask(formName){
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            
-          } else {
-            return false;
-          }
-        });
+      closeSound(){
+        this.myAudio.pause();
+        this.myAudio.load();
+        console.log(this.notification_id)
+        chrome.notifications.clear(this.notification_id);
       },
-      addTask(){
-        this.dialogVisible = true;
+      timeEndCallback(){
+        console.log("倒计时到了！")
+        // type, iconUrl, title and message.
+        var opt = {
+            type: 'basic',
+            title: 'Time is up!',
+            message: 'The time of task "' + this.task.title + '" is up.',
+            priority: 1,
+            // items: [{ title: '', message: ''}],
+            iconUrl:'../images/timeUp.jpg',
+            requireInteraction:true
+        };
+        this.myAudio = new Audio();
+        this.myAudio.src = "../audios/audio.aac";
+        this.myAudio.play();
+        chrome.notifications.create(null, opt, (id)=>{
+          console.log(id);
+          this.notification_id = id;
+        });
+        chrome.notifications.onClosed.addListener(()=>{
+          this.closeSound();
+        })
       }
     }
   }

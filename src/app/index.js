@@ -3,13 +3,13 @@ import App from "./App.vue"
 import router from './router'
 import ElementUI from 'element-ui'
 import './styles/styles.scss'
-
-// 单页
-import TodayTasks from "./components/TodayTasks"
+import Countdown from "./components/Countdown"
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
+
+Vue.component("count-down", Countdown)
 
 new Vue({ // eslint-disable-line no-new
   el: '#app',

@@ -22,7 +22,9 @@ module.exports = {
     'unlimitedStorage',
     'storage',
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "notifications",
+    "alarms"
   ],
   browser_action: {
     default_title: 'TimeReminder',
