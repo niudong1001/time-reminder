@@ -1,0 +1,26 @@
+$bg-color:rgb(18, 62, 60);
+$primary-color:rgb(57, 122, 109);
+$font-family:'Courier New', Courier, monospace;
+body {
+  font-family: $font-family;
+  font-weight: 400;
+  background-color: $bg-color;
+  color: #999;
+}
+.c {
+  &-title {
+    font-size: 50px;
+    &__back {
+      color:#aaa;
+    }
+    &__btn {
+       color:rgb(121, 138, 32);
+       font-size: 18px;
+    }
+  }
+  &-color {
+    &--primary {
+      color: rgb(70, 140, 128);
+    }
+  }
+}

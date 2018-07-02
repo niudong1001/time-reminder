@@ -1,16 +1,16 @@
 <template>
-  <div id="app">
-    <h1 class="todayTasks-title">
-      <i class="el-icon-back todayTasks-title-back"></i> 
-      <span class="titleColor">For Today</span>  
-      <i class="el-icon-circle-plus-outline todayTasks-title-btn" @click="addTask">
+  <div>
+    <h1 class="c-title">
+      <i class="el-icon-back c-title__back"></i> 
+      <span class="c-color--primary">For Today</span>  
+      <i class="el-icon-circle-plus-outline c-title__btn" @click="addTask">
         Add Task
       </i>
     </h1>
     <el-row class="todayTasks-list">
-      <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks">
-        <div class="todayTasks-list__item-title titleColor">{{task.title}}</div>
-        <div class="todayTasks-list__item-desc">{{task.desc}}</div>
+      <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks" >
+        <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task'})">{{task.title}}</div>
+        <div class="todayTasks-list__item-desc" @click="router({name:'Task'})">{{task.desc}}</div>
         <div class="todayTasks-list__item-icons">
           <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">2</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">1</i>
         </div>
@@ -25,7 +25,7 @@
           <el-input v-model="form.desc" auto-complete="off" type="textarea"
           :rows="4"></el-input>
         </el-form-item>
-        <el-form-item label="Estimate" prop="estimate" :label-width="formLabelWidth">
+        <el-form-item :label="'Estimate:'+form.estimate" prop="estimate" :label-width="formLabelWidth">
           <el-slider
             :min="0"
             :max="5"
@@ -89,6 +89,11 @@
     },
     mounted () { },
     methods: {
+      router(route){
+        this.$router.push(route)
+        // var curUrl = window.location.href;
+        // console.log(curUrl);
+      },
       ensureAddTask(formName){
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -108,12 +113,6 @@
   $bg-color:rgb(18, 62, 60);
   $primary-color:rgb(57, 122, 109);
   $font-family:'Courier New', Courier, monospace;
-  body {
-    font-family: $font-family;
-    font-weight: 400;
-    background-color: $bg-color;
-    color: #999;
-  }
   // dialog相关
   .el-dialog {
     font-weight: 600;
@@ -133,20 +132,7 @@
     color: #000;
   }
   // task相关
-  .titleColor {
-    color: rgb(70, 140, 128);
-  }
   .todayTasks {
-    &-title {
-      font-size: 50px;
-      &-back {
-        color:#aaa;
-      }
-      &-btn {
-         color:rgb(121, 138, 32);
-         font-size: 18px;
-      }
-    }
     &-list {
       margin-top: 10px;
       &__item {
@@ -154,12 +140,17 @@
         background: rgb(7, 27, 25);
         height: 300px;
         position: relative;
+        border:2px solid rgb(7, 27, 25);
+        &:hover {
+          border:2px solid $primary-color;
+        }
         &-title {
-            font-size: 18px;
+            font-size: 20px;
             margin: 10px 0;
         }
         &-desc {
           font-size: 14px;
+          min-height: 200px;
         }
         &-icons {
           position: absolute;
