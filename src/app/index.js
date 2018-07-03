@@ -5,12 +5,14 @@ import store from "./store"
 import ElementUI from 'element-ui'
 import './styles/styles.scss'
 import Countdown from "./components/Countdown"
+import VueContextMenu from './components/ContextMenu'  // https://github.com/xunleif2e/vue-context-menu
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
 
 Vue.component("count-down", Countdown)
+Vue.component("context-menu", VueContextMenu)
 
 // 实例化Vue前加载数据
 import { Loading } from 'element-ui';

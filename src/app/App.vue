@@ -10,11 +10,17 @@
 export default {
   name: 'app',
   data(){
+    return {
+      
+    }
   },
   beforeMount(){
   },
   mounted(){
     // this.$store.dispatch('rmAllTasks')
+    document.oncontextmenu = function(){  // 拒绝右键点击
+    　　return false;
+    }
   }
 }
 </script>

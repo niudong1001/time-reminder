@@ -10,6 +10,9 @@ function rm_window(){
 chrome.runtime.onInstalled.addListener(function (details) {
   console.log('previousVersion', details.previousVersion);
   rm_window()
+  document.oncontextmenu = function(){  // 拒绝右键点击
+    　　return false;
+    }
 });
 
 

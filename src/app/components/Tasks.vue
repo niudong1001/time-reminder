@@ -14,16 +14,28 @@
         </span>
       </span>
     </h1>
-    <el-row class="todayTasks-list">
-      <div v-if="!todayTasks.length" class="todayTasks-list-placeholder">
+    <div v-if="!todayTasks.length" class="todayTasks-list-placeholder">
         Add a task~
-      </div>
-      <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks" >
-        <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task',params:{taskId:task.id}})">{{task.title}}</div>
-        <div class="todayTasks-list__item-desc" @click="router({name:'Task',params:{taskId:task.id}})">{{task.desc}}</div>
-        <div class="todayTasks-list__item-icons">
-          <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">{{task.estimate}}</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">{{task.finished}}</i>
-        </div>
+    </div>
+     
+    <el-row class="todayTasks-list" id="todayTasks-list">
+      <el-col :span="6" :key="task.id" v-for="task in todayTasks" >
+        <div :id="task.id" :title="task.id" class="todayTasks-list__item">
+          <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task',params:{taskId:task.id}})">{{task.title}}</div>
+          <div class="todayTasks-list__item-desc" @click="router({name:'Task',params:{taskId:task.id}})">{{task.desc}}</div>
+          <div class="todayTasks-list__item-icons">
+            <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">{{task.estimate}}</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">{{task.finished}}</i> 
+          </div>
+          <context-menu class="right-menu" 
+            :targets="contextMenuTarget" 
+            :show="contextMenuVisible" 
+            @update:show="(show) => contextMenuVisible = show">
+              <!-- <a href="javascript:;" >复制</a>
+              <a href="javascript:;" >引用</a> -->
+              <a @click="deleteTask($event, task)"><i class="el-icon-delete"></i> Delete</a>
+          </context-menu> 
+        </div>    
+          
       </el-col>
     </el-row>
     <el-dialog title="Add Task" :visible.sync="dialogVisible">
@@ -65,6 +77,8 @@
   };
   export default {
     data: () => ({
+      contextMenuTarget: document.getElementsByClassName("todayTasks-list__item"),
+      contextMenuVisible: false,
       dialogVisible: false,
       formLabelWidth: '120px',
       form: {
@@ -87,13 +101,17 @@
     }),
     computed: { 
       todayTasks(){
-        return this.$store.getters.allTasks.filter((elem)=>{
+        let tasks=this.$store.getters.allTasks.filter((elem)=>{
           let eData = miment(elem.createdTime);
           let tData = miment();
           // console.log(elemData, todayData)
           // 判断是否为今天的任务
           return utils.isSameDay(eData, tData);
         })
+        // tasks.forEach(elem=>{
+        //   elem.contextMenuVisible = false;
+        // })
+        return tasks;
       }
     },
     created () {
@@ -101,8 +119,17 @@
     },
     mounted () { 
       // console.log(this.$route)
+      // this.contextMenuTarget = document.getElementsByClassName("todayTasks-list__item");
+      // console.log(document.body, document.getElementsByClassName("todayTasks-list__item"))
     },
     methods: {
+      getElem(id){
+        console.log(id, document.getElementById(id), document.getElementsByClassName("todayTasks-list__item"))
+        return document.getElementById(id);
+      },
+      deleteTask(e, task){
+        console.log(e, task)
+      },
       tellHistory(){
         this.$router.push({name:"History"})
       },
@@ -168,6 +195,32 @@
   .el-form-item__label {
     color: #000;
   }
+  // contextmenu
+  a {
+    color:#333;
+    text-decoration: none;
+  }
+  .right-menu {
+    position: fixed;
+    background: #999;
+    border: solid 1px #999;
+    border-radius: 1px;
+    z-index: 999;
+    display: none;
+    box-shadow: 0 0.5em 1em 0 rgba(0,0,0,.1);
+  }
+  .right-menu a {
+    padding: 2px;
+    width: 75px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    display: block;
+    color: #1a1a1a;
+  }
+  .right-menu a:hover {
+    background: #bbb;
+  }
   // task相关
   .todayTasks {
     &-list {
@@ -178,6 +231,7 @@
       }
       margin-top: 10px;
       &__item {
+        cursor: pointer;
         margin: 10px 0 0 10px;
         padding: 0 10px;
         background: rgb(7, 27, 25);
