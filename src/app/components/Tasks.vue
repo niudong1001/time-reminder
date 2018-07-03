@@ -15,6 +15,9 @@
       </span>
     </h1>
     <el-row class="todayTasks-list">
+      <div v-if="!todayTasks.length" class="todayTasks-list-placeholder">
+        Add a task~
+      </div>
       <el-col :span="6" class="todayTasks-list__item" :key="task.id" v-for="task in todayTasks" >
         <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task',params:{taskId:task.id}})">{{task.title}}</div>
         <div class="todayTasks-list__item-desc" @click="router({name:'Task',params:{taskId:task.id}})">{{task.desc}}</div>
@@ -168,6 +171,11 @@
   // task相关
   .todayTasks {
     &-list {
+      &-placeholder {
+        font-size: 40px;
+        text-align: center;
+        margin-top: 10%;
+      }
       margin-top: 10px;
       &__item {
         margin: 10px 0 0 10px;

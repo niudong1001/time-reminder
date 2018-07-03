@@ -5,6 +5,9 @@
       <span class="c-color--primary">My history</span>  
     </h1>
     <div class="history">
+        <div v-if="!histories.length" class="todayTasks-list-placeholder">
+            No history~
+        </div>
         <div class="history-list" v-for="day in histories" :key="day.createdTime">
             <div class="history-list-title">{{day.createdTime}}</div>
             <el-row class="history-list-tasks">

@@ -3,12 +3,13 @@
  */
 module.exports = {
   name: 'time-reminder',
-  description: 'A Chrome extension project with Vue.js',
+  description: 'A time reminder similar like Zamora in Window',
   author: 'Niudong-mac <1619249966@qq.com>',
   version: '1.0.0',
   icons: {
-    '16': 'icons/16.png',
-    '128': 'icons/128.png'
+    '16': 'icons/16.gif',
+    "48":"icons/48.gif",
+    '128': 'icons/128.gif'
   },
   /**
    * @see {@link https://developer.chrome.com/extensions/declare_permissions}
