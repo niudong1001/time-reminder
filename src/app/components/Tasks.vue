@@ -1,11 +1,17 @@
 <template>
   <div>
     <h1 class="c-title">
-      <i class="el-icon-back c-title__back"></i> 
-      <span class="c-color--primary">For Today</span>  
-      <span class="c-title__btn" @click="addTask">
-        <i class="el-icon-circle-plus-outline c-title__btn-icon"></i>
-        Add Task
+      <!-- <i class="el-icon-back c-title__back "></i>  -->
+      <span class="c-color--primary" style="margin-left:15px">For Today</span>  
+      <span >
+        <span class="c-title__btn" @click="addTask">
+          <i class="el-icon-circle-plus-outline c-title__btn-icon"></i>
+          Add Task
+        </span>
+        <span class="f-ml05 c-title__btn" @click="tellHistory" >
+          <i class="icon-database c-title__btn-icon"></i>
+          Tell history
+        </span>
       </span>
     </h1>
     <el-row class="todayTasks-list">
@@ -44,6 +50,7 @@
   </div>
 </template>
 <script>
+  import miment from 'miment'
   import utils from "../../ext/utils"
   var validatePass = (rule, value, callback) => {
     if(value < 1){
@@ -77,16 +84,25 @@
     }),
     computed: { 
       todayTasks(){
-        return this.$store.getters.todayTasks;
+        return this.$store.getters.allTasks.filter((elem)=>{
+          let eData = miment(elem.createdTime);
+          let tData = miment();
+          // console.log(elemData, todayData)
+          // 判断是否为今天的任务
+          return utils.isSameDay(eData, tData);
+        })
       }
     },
     created () {
       // console.log('New tab')
     },
     mounted () { 
-      console.log(this.$route)
+      // console.log(this.$route)
     },
     methods: {
+      tellHistory(){
+        this.$router.push({name:"History"})
+      },
       router(route){
         this.$router.push(route)
         // var curUrl = window.location.href;
@@ -106,10 +122,12 @@
               state:"prepare",
               createdTime:new Date().getTime()
             }
+            vm.form.title = "";
+            vm.form.desc = "";
             // console.log(task);
             if(utils.checkTask(task)){
-              vm.$store.dispatch('addTodayTask',task)
-              vm.$store.dispatch('saveTodayTasks')
+              vm.$store.dispatch('addTask',task)
+              vm.$store.dispatch('saveTasks')
               vm.dialogVisible = false;
             }
             return true;

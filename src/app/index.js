@@ -12,9 +12,19 @@ Vue.use(ElementUI)
 
 Vue.component("count-down", Countdown)
 
-new Vue({ // eslint-disable-line no-new
-  el: '#app',
-  router,
-  store,
-  render: h => h(App)
-})
+// 实例化Vue前加载数据
+import { Loading } from 'element-ui';
+let loadingInstance = Loading.service({
+  text:"Loading data"
+});
+store.dispatch('loadTasks',()=>{
+  loadingInstance.close();
+  new Vue({ // eslint-disable-line no-new
+    el: '#app',
+    router,
+    store,
+    render: h => h(App)
+  })
+}) 
+
+

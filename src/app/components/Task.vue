@@ -44,17 +44,6 @@
   export default {
     data: () => (
       {
-        // task:{
-        //   id: 1,
-        //   title:"学习Nengo",
-        //   desc:"今天要学习nengo",
-        //   startTime:miment().stamp(),
-        //   basicTimeUnit:45,  // 45分钟
-        //   estimate:1,
-        //   finished:0,
-        //   state:"prepare"  // prepare, started, finished
-        // },
-        // task:{},
         myAudio:null,
         notification_id: null,
         startCountdown:false,
@@ -68,12 +57,10 @@
       },
       task(){
         let taskId = this.$route.params.taskId;
-        let todayTasks = this.$store.getters.todayTasks;
-        console.log(taskId, todayTasks)
+        let todayTasks = this.$store.getters.allTasks;
         let temp = {}
         todayTasks.forEach(elem => {
           if(elem.id == taskId){
-            console.log(elem)
             temp = elem
           }
         });
@@ -81,23 +68,17 @@
         return temp;
       },
       endTime(){
-        return (this.task.startTime + 1 * 1 * 1 * 1000 + 1*1000).toString();
+        return (this.startTime + 1 * this.task.basicTimeUnit * 60 * 1000 + 1*1000).toString();
       }
     },
     created () {
       // console.log('New tab')
     },
     mounted () { 
-      // console.log(this.task)
-      // let lastTime = this.task.startTime + this.task.estimate * this.task.basicTimeUnit * 60 * 1000;
-      // let count = new Countdown(document.getElementById('countdown'),{
-      //   format: "mm:ss",
-      //   lastTime: lastTime
-      // });
     },
     beforeDestroy(){
       if(this.myAudio){
-        this.closeSound();
+        this.closeNotif();
       }
     },
     methods: {
@@ -110,20 +91,19 @@
             type: 'warning'
           }).then(() => {
             vm.task.state = state;
-            vm.task.startTime = miment().stamp();
+            vm.startTime = miment().stamp();
           }).catch(() => {
                      
           });
         }
         else{
           vm.task.state = state;
-          vm.task.startTime = miment().stamp();
+          vm.startTime = miment().stamp();
         }
       },
-      closeSound(){
+      closeNotif(){
         this.myAudio.pause();
         this.myAudio.load();
-        // console.log(this.notification_id)
         chrome.notifications.clear(this.notification_id);
       },
       timeEndCallback(){
@@ -139,17 +119,20 @@
             requireInteraction:true
         };
         // console.log(this._task)
+        // store更新
         this._task.finished += 1;
-        this.$store.commit("updateTodayTask",this.taskId, this._task);
+        this._task.state = "finished";
+        this.$store.commit("updateTask",{taskId:this.taskId, task:this._task});
+        this.$store.dispatch("saveTasks");
+        // Audio控制
         this.myAudio = new Audio();
         this.myAudio.src = "../audios/audio.aac";
         this.myAudio.play();
         chrome.notifications.create(null, opt, (id)=>{
-          // console.log(id);
           this.notification_id = id;
         });
         chrome.notifications.onClosed.addListener(()=>{
-          this.closeSound();
+          this.closeNotif();
         })
       }
     }
@@ -162,6 +145,8 @@
     margin: 20px;
     background: rgb(7, 27, 25);
     min-height: 250px;
+    // height: 250px;
+    // overflow: hidden;
     &-item {
       &__icon {
         font-size: 50px;
@@ -180,7 +165,7 @@
       &__desc {
         font-size: 14px;
         display: inline-block;
-        margin: 90px 0;
+        padding: 90px 0;
       }
       &__statistics {
         color:#eee;
