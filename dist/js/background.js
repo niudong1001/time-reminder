@@ -100,7 +100,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
       });
     } else if (!is_running) {
       is_running = true;
-      chrome.windows.create({ url: chrome.runtime.getURL('pages/app.html') }, function (win) {
+      chrome.windows.create({ url: chrome.runtime.getURL('pages/app.html'), type: "popup" }, function (win) {
         // 回传创建的window对象
         // window_id = win.id;
         var saved_data = {
