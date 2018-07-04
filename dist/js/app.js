@@ -518,6 +518,8 @@ if (false) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuex__ = __webpack_require__(112);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ext_storage__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ext_utils__ = __webpack_require__(54);
+
 
 
 
@@ -536,6 +538,14 @@ __WEBPACK_IMPORTED_MODULE_1_vue__["default"].use(__WEBPACK_IMPORTED_MODULE_2_vue
     mutations: {
         addTask: function addTask(state, task) {
             state.allTasks.push(task);
+            // console.log(state.allTasks)
+        },
+        deleteTask: function deleteTask(state, task) {
+            var taskId = task.id;
+            var index = __WEBPACK_IMPORTED_MODULE_4__ext_utils__["a" /* default */].findItem(state.allTasks, "id", taskId);
+            if (index > -1) {
+                state.allTasks.splice(index, 1);
+            }
             // console.log(state.allTasks)
         },
         updateTask: function updateTask(state, _task) {
@@ -594,9 +604,22 @@ __WEBPACK_IMPORTED_MODULE_1_vue__["default"].use(__WEBPACK_IMPORTED_MODULE_2_vue
 
             // let dbToday = getters.allTasks;
             var dbAll = getters.allTasks;
+            var lastArr = [];
+            dbAll.forEach(function (elem) {
+                lastArr.push({
+                    "id": elem.id,
+                    "title": elem.title,
+                    "desc": elem.desc,
+                    estimate: elem.estimate,
+                    basicTimeUnit: elem.basicTimeUnit,
+                    finished: elem.finished,
+                    state: elem.state,
+                    createdTime: elem.createdTime
+                });
+            });
             // console.log(dbAll)
             var dataObj = {
-                "timeReminder_allDB": __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify___default()(dbAll)
+                "timeReminder_allDB": __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify___default()(lastArr)
                 // "timeReminder_allDB":JSON.stringify(dbAll)
             };
             __WEBPACK_IMPORTED_MODULE_3__ext_storage__["a" /* default */].setSyncStorage(dataObj);
@@ -981,14 +1004,55 @@ if (false) {
 /* harmony default export */ __webpack_exports__["a"] = ({
   name: 'app',
   data: function data() {
-    return {};
+    return {
+      isJudge: false
+    };
   },
   beforeMount: function beforeMount() {},
+
+  methods: {
+    getWinSize: function getWinSize() {
+      var winWidth = void 0;
+      var winHeight = void 0;
+      // 获取窗口宽度
+      if (window.innerWidth) winWidth = window.innerWidth;else if (document.body && document.body.clientWidth) winWidth = document.body.clientWidth;
+      // 获取窗口高度
+      if (window.innerHeight) winHeight = window.innerHeight;else if (document.body && document.body.clientHeight) winHeight = document.body.clientHeight;
+      // 通过深入 Document 内部对 body 进行检测，获取窗口大小
+      if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth) {
+        winHeight = document.documentElement.clientHeight;
+        winWidth = document.documentElement.clientWidth;
+      }
+      return {
+        width: winWidth,
+        height: winHeight
+      };
+    }
+  },
   mounted: function mounted() {
+    var vm = this;
     // this.$store.dispatch('rmAllTasks')
     document.oncontextmenu = function () {
       // 拒绝右键点击
       return false;
+    };
+    // 窗口被调节
+    window.onresize = function () {
+      // let winSize = vm.getWinSize();
+      // let adjust = false;
+      // if(winSize.width <= 1300){
+      //   winSize.width = 1400;
+      //   adjust = true;
+      // }
+      // if(winSize.height <= 600){
+      //   winSize.height = 650;
+      //   adjust = true;
+      // }
+      // if(adjust && !this.isJudge) {
+      //   window.resizeTo(winSize.width, winSize.height);
+      //   this.isJudge = true;
+      // }
+      // console.log(winSize);
     };
   }
 });
@@ -1081,8 +1145,8 @@ var validatePass = function validatePass(rule, value, callback) {
 /* harmony default export */ __webpack_exports__["a"] = ({
   data: function data() {
     return {
-      contextMenuTarget: document.getElementsByClassName("todayTasks-list__item"),
-      contextMenuVisible: false,
+      // contextMenuTarget: document.getElementsByClassName("todayTasks-list__item"),
+      // contextMenuVisible: false,
       dialogVisible: false,
       formLabelWidth: '120px',
       form: {
@@ -1104,13 +1168,18 @@ var validatePass = function validatePass(rule, value, callback) {
       var tasks = this.$store.getters.allTasks.filter(function (elem) {
         var eData = __WEBPACK_IMPORTED_MODULE_0_miment___default()(elem.createdTime);
         var tData = __WEBPACK_IMPORTED_MODULE_0_miment___default()();
-        // console.log(elemData, todayData)
         // 判断是否为今天的任务
         return __WEBPACK_IMPORTED_MODULE_1__ext_utils__["a" /* default */].isSameDay(eData, tData);
       });
-      // tasks.forEach(elem=>{
-      //   elem.contextMenuVisible = false;
-      // })
+      tasks.forEach(function (elem) {
+        elem.contextMenuVisible = false;
+        elem.contextStyle = {
+          "left": 0,
+          "top": 0
+        };
+        elem.show = true;
+      });
+      // console.log(tasks);
       return tasks;
     }
   },
@@ -1118,18 +1187,41 @@ var validatePass = function validatePass(rule, value, callback) {
     // console.log('New tab')
   },
   mounted: function mounted() {
+    var _this = this;
+
+    document.addEventListener("click", function () {
+      _this.todayTasks.forEach(function (elem) {
+        elem.contextMenuVisible = false;
+      });
+      _this.$forceUpdate();
+    });
     // console.log(this.$route)
     // this.contextMenuTarget = document.getElementsByClassName("todayTasks-list__item");
     // console.log(document.body, document.getElementsByClassName("todayTasks-list__item"))
   },
 
   methods: {
-    getElem: function getElem(id) {
-      console.log(id, document.getElementById(id), document.getElementsByClassName("todayTasks-list__item"));
-      return document.getElementById(id);
+    clickRightBtn: function clickRightBtn(task, e) {
+      this.todayTasks.forEach(function (elem) {
+        elem.contextMenuVisible = false;
+      });
+      task.contextMenuVisible = true;
+      task.contextStyle.left = e.clientX + "px";
+      task.contextStyle.top = e.clientY + "px";
+      this.$forceUpdate();
     },
-    deleteTask: function deleteTask(e, task) {
-      console.log(e, task);
+    deleteTask: function deleteTask(task) {
+      var vm = this;
+      this.$confirm('You want delete the task?', 'Warning', {
+        confirmButtonText: 'ensure',
+        cancelButtonText: "cancel",
+        type: 'warning'
+      }).then(function () {
+        task.show = false;
+        vm.$store.commit("deleteTask", task);
+        vm.$store.dispatch("saveTasks");
+        vm.$forceUpdate();
+      }).catch(function () {});
     },
     tellHistory: function tellHistory() {
       this.$router.push({ name: "History" });
@@ -1219,6 +1311,18 @@ var validatePass = function validatePass(rule, value, callback) {
             }
         }
         return null;
+    },
+    findItem: function findItem(list, attr, value) {
+        if (!list.length || !list[0][attr]) {
+            return -1;
+        }
+        var l = list.length;
+        for (var i = 0; i < l; i++) {
+            if (list[i][attr] == value) {
+                return i;
+            }
+        }
+        return -1;
     }
 });
 
@@ -1319,7 +1423,7 @@ var validatePass = function validatePass(rule, value, callback) {
     changeTaskState: function changeTaskState(state) {
       var vm = this;
       if (state == "prepare") {
-        this.$confirm('You want stop the task?', 'Info', {
+        this.$confirm('You want stop the task?', 'Warning', {
           confirmButtonText: 'ensure',
           cancelButtonText: "cancel",
           type: 'warning'
@@ -1432,7 +1536,10 @@ var validatePass = function validatePass(rule, value, callback) {
                     });
                 }
             });
-            return histories;
+
+            return histories.sort(function (a, b) {
+                return a.createdTime < b.createdTime;
+            });
         }
     },
     created: function created() {},
@@ -1727,10 +1834,6 @@ __WEBPACK_IMPORTED_MODULE_3__store__["a" /* default */].dispatch('loadTasks', fu
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7e7f006c_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(8);
 var disposed = false
-function injectStyle (context) {
-  if (disposed) return
-  __webpack_require__(90)
-}
 /* script */
 
 
@@ -1739,7 +1842,7 @@ function injectStyle (context) {
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = injectStyle
+var __vue_styles__ = null
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
@@ -1773,49 +1876,6 @@ if (false) {(function () {
 })()}
 
 /* harmony default export */ __webpack_exports__["a"] = (Component.exports);
-
-
-/***/ }),
-
-/***/ 90:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(91);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__(12).default
-var update = add("26bb1349", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../node_modules/css-loader/index.js?{\"minimize\":false}!../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":true}!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./App.vue", function() {
-     var newContent = require("!!../../node_modules/css-loader/index.js?{\"minimize\":false}!../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":true}!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./App.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-
-/***/ 91:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(7)(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
-
-// exports
 
 
 /***/ }),
@@ -1983,7 +2043,7 @@ exports = module.exports = __webpack_require__(7)(false);
 
 
 // module
-exports.push([module.i, "\n.el-dialog {\n  font-weight: 600;\n}\n.el-input__inner, .el-textarea__inner {\n  font-family: \"Courier New\", Courier, monospace;\n  border-color: #888;\n  color: #000;\n}\n.el-input__inner:hover, .el-textarea__inner:hover {\n  border-color: #666;\n}\n.el-slider__runway {\n  background-color: #aaa;\n}\n.el-form-item__label {\n  color: #000;\n}\na {\n  color: #333;\n  text-decoration: none;\n}\n.right-menu {\n  position: fixed;\n  background: #999;\n  border: solid 1px #999;\n  border-radius: 1px;\n  z-index: 999;\n  display: none;\n  box-shadow: 0 0.5em 1em 0 rgba(0, 0, 0, 0.1);\n}\n.right-menu a {\n  padding: 2px;\n  width: 75px;\n  height: 28px;\n  line-height: 28px;\n  text-align: center;\n  display: block;\n  color: #1a1a1a;\n}\n.right-menu a:hover {\n  background: #bbb;\n}\n.todayTasks-list {\n  margin-top: 10px;\n}\n.todayTasks-list-placeholder {\n    font-size: 40px;\n    text-align: center;\n    margin-top: 10%;\n}\n.todayTasks-list__item {\n    cursor: pointer;\n    margin: 10px 0 0 10px;\n    padding: 0 10px;\n    background: #071b19;\n    height: 300px;\n    position: relative;\n    border: 2px solid #071b19;\n}\n.todayTasks-list__item:hover {\n      border: 2px solid #397a6d;\n}\n.todayTasks-list__item-title {\n      font-size: 20px;\n      margin: 10px 0;\n}\n.todayTasks-list__item-desc {\n      font-size: 14px;\n      min-height: 200px;\n}\n.todayTasks-list__item-icons {\n      position: absolute;\n      width: 100%;\n      bottom: 10px;\n      right: 10px;\n      font-size: 18px;\n      text-align: right;\n}\n.todayTasks-list__item-icons__item {\n        margin-left: 5px;\n}\n", ""]);
+exports.push([module.i, "\n.el-dialog {\n  font-weight: 600;\n}\n.el-input__inner, .el-textarea__inner {\n  font-family: \"Courier New\", Courier, monospace;\n  border-color: #888;\n  color: #000;\n}\n.el-input__inner:hover, .el-textarea__inner:hover {\n  border-color: #666;\n}\n.el-slider__runway {\n  background-color: #aaa;\n}\n.el-form-item__label {\n  color: #000;\n}\na {\n  color: #333;\n  text-decoration: none;\n}\n.right-menu {\n  position: fixed;\n  background: #999;\n  border: solid 1px #999;\n  border-radius: 1px;\n  z-index: 999;\n  box-shadow: 0 0.5em 1em 0 rgba(0, 0, 0, 0.1);\n}\n.right-menu__item {\n    cursor: pointer;\n}\n.right-menu a {\n  padding: 2px;\n  width: 75px;\n  height: 28px;\n  line-height: 28px;\n  text-align: center;\n  display: block;\n  color: #1a1a1a;\n}\n.right-menu a:hover {\n  background: #bbb;\n}\n.todayTasks-list {\n  margin-top: 10px;\n}\n.todayTasks-list-placeholder {\n    font-size: 25px;\n    text-align: center;\n    margin-top: 15%;\n}\n.todayTasks-list__item {\n    cursor: pointer;\n    margin: 10px 0 0 10px;\n    padding: 0 10px;\n    background: #071b19;\n    height: 300px;\n    position: relative;\n    border: 2px solid #071b19;\n}\n.todayTasks-list__item:hover {\n      border: 2px solid #397a6d;\n}\n.todayTasks-list__item-title {\n      font-size: 20px;\n      margin: 10px 0;\n}\n.todayTasks-list__item-desc {\n      font-size: 14px;\n      min-height: 200px;\n}\n.todayTasks-list__item-icons {\n      position: absolute;\n      width: 100%;\n      bottom: 10px;\n      right: 10px;\n      font-size: 18px;\n      text-align: right;\n}\n.todayTasks-list__item-icons__item {\n        margin-left: 5px;\n}\n", ""]);
 
 // exports
 
@@ -2041,7 +2101,7 @@ var render = function() {
       _vm._v(" "),
       !_vm.todayTasks.length
         ? _c("div", { staticClass: "todayTasks-list-placeholder" }, [
-            _vm._v("\n      Add a task~\n  ")
+            _vm._v("\n      It’s very clean today, let’s start a task~\n  ")
           ])
         : _vm._e(),
       _vm._v(" "),
@@ -2049,100 +2109,98 @@ var render = function() {
         "el-row",
         { staticClass: "todayTasks-list", attrs: { id: "todayTasks-list" } },
         _vm._l(_vm.todayTasks, function(task) {
-          return _c("el-col", { key: task.id, attrs: { span: 6 } }, [
-            _c(
-              "div",
-              {
-                staticClass: "todayTasks-list__item",
-                attrs: { id: task.id, title: task.id }
-              },
-              [
+          return task.show
+            ? _c("el-col", { key: task.id, attrs: { span: 6 } }, [
                 _c(
                   "div",
                   {
-                    staticClass: "todayTasks-list__item-title c-color--primary",
+                    staticClass: "todayTasks-list__item",
                     on: {
-                      click: function($event) {
-                        _vm.router({
-                          name: "Task",
-                          params: { taskId: task.id }
-                        })
-                      }
-                    }
-                  },
-                  [_vm._v(_vm._s(task.title))]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    staticClass: "todayTasks-list__item-desc",
-                    on: {
-                      click: function($event) {
-                        _vm.router({
-                          name: "Task",
-                          params: { taskId: task.id }
-                        })
-                      }
-                    }
-                  },
-                  [_vm._v(_vm._s(task.desc))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "todayTasks-list__item-icons" }, [
-                  _c(
-                    "i",
-                    {
-                      staticClass:
-                        "el-icon-circle-check-outline todayTasks-list__item-icons__item"
-                    },
-                    [_vm._v(_vm._s(task.estimate))]
-                  ),
-                  _c(
-                    "i",
-                    {
-                      staticClass:
-                        "el-icon-circle-check todayTasks-list__item-icons__item"
-                    },
-                    [_vm._v(_vm._s(task.finished))]
-                  )
-                ]),
-                _vm._v(" "),
-                _c(
-                  "context-menu",
-                  {
-                    staticClass: "right-menu",
-                    attrs: {
-                      targets: _vm.contextMenuTarget,
-                      show: _vm.contextMenuVisible
-                    },
-                    on: {
-                      "update:show": function(show) {
-                        return (_vm.contextMenuVisible = show)
+                      contextmenu: function($event) {
+                        _vm.clickRightBtn(task, $event)
                       }
                     }
                   },
                   [
                     _c(
-                      "a",
+                      "div",
                       {
+                        staticClass:
+                          "todayTasks-list__item-title c-color--primary",
                         on: {
                           click: function($event) {
-                            _vm.deleteTask($event, task)
+                            _vm.router({
+                              name: "Task",
+                              params: { taskId: task.id }
+                            })
                           }
                         }
                       },
+                      [_vm._v(_vm._s(task.title))]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "todayTasks-list__item-desc",
+                        on: {
+                          click: function($event) {
+                            _vm.router({
+                              name: "Task",
+                              params: { taskId: task.id }
+                            })
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(task.desc))]
+                    ),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "todayTasks-list__item-icons" }, [
+                      _c(
+                        "i",
+                        {
+                          staticClass:
+                            "el-icon-circle-check-outline todayTasks-list__item-icons__item"
+                        },
+                        [_vm._v(_vm._s(task.estimate))]
+                      ),
+                      _c(
+                        "i",
+                        {
+                          staticClass:
+                            "el-icon-circle-check todayTasks-list__item-icons__item"
+                        },
+                        [_vm._v(_vm._s(task.finished))]
+                      )
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                task.contextMenuVisible
+                  ? _c(
+                      "div",
+                      { staticClass: "right-menu", style: task.contextStyle },
                       [
-                        _c("i", { staticClass: "el-icon-delete" }),
-                        _vm._v(" Delete")
+                        _c(
+                          "a",
+                          {
+                            staticClass: "right-menu__item",
+                            on: {
+                              click: function($event) {
+                                _vm.deleteTask(task)
+                              }
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "el-icon-delete" }),
+                            _vm._v(" Delete")
+                          ]
+                        )
                       ]
                     )
-                  ]
-                )
-              ],
-              1
-            )
-          ])
+                  : _vm._e()
+              ])
+            : _vm._e()
         })
       ),
       _vm._v(" "),

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import storage from "../ext/storage"
+import utils from "../ext/utils"
 
 Vue.use(Vuex)
 
@@ -15,6 +16,14 @@ export default new Vuex.Store({
     mutations: {
       addTask(state, task) {
         state.allTasks.push(task);
+        // console.log(state.allTasks)
+      },
+      deleteTask(state, task) {
+        let taskId = task.id;
+        let index = utils.findItem(state.allTasks, "id", taskId);
+        if(index > -1){
+            state.allTasks.splice(index, 1);
+        }
         // console.log(state.allTasks)
       },
       updateTask(state, _task) {
@@ -64,9 +73,22 @@ export default new Vuex.Store({
         saveTasks({getters}){
             // let dbToday = getters.allTasks;
             let dbAll = getters.allTasks;
+            let lastArr = [];
+            dbAll.forEach(elem=>{
+                lastArr.push({
+                    "id": elem.id,
+                    "title":elem.title,
+                    "desc":elem.desc,
+                    estimate:elem.estimate,
+                    basicTimeUnit: elem.basicTimeUnit,
+                    finished: elem.finished,
+                    state:elem.state,
+                    createdTime:elem.createdTime
+                })
+            })
             // console.log(dbAll)
             let dataObj = {
-                "timeReminder_allDB":JSON.stringify(dbAll),
+                "timeReminder_allDB":JSON.stringify(lastArr),
                 // "timeReminder_allDB":JSON.stringify(dbAll)
             }
             storage.setSyncStorage(dataObj)

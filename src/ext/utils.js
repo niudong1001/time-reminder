@@ -37,5 +37,17 @@ export default {
             }
         }
         return null;
+    },
+    findItem(list, attr, value){
+        if(!list.length||!list[0][attr]){
+            return -1;
+        }
+        let l = list.length;
+        for(let i =0; i<l;i++){
+            if(list[i][attr] == value){
+                return i;
+            }
+        }
+        return -1;
     }
 }

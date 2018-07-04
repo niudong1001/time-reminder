@@ -85,7 +85,7 @@
       changeTaskState(state){
         let vm=this;
         if(state=="prepare"){
-          this.$confirm('You want stop the task?', 'Info', {
+          this.$confirm('You want stop the task?', 'Warning', {
             confirmButtonText: 'ensure',
             cancelButtonText: "cancel",
             type: 'warning'

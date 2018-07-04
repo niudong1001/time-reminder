@@ -52,7 +52,10 @@
                     )
                 }
             });
-            return histories;
+
+            return histories.sort((a,b)=>{
+                return a.createdTime < b.createdTime;
+            });
         }
     },
     created () {
