@@ -2039,7 +2039,7 @@ var render = function() {
                           "icon-forkandspoon todayTasks-list__item-icons__item",
                         staticStyle: { "font-size": "15px" }
                       }),
-                      _vm._v(_vm._s(task.break) + "  \n        ")
+                      _vm._v(_vm._s(task.break || 0) + "  \n        ")
                     ])
                   ]
                 ),
