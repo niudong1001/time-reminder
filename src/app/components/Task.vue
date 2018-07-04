@@ -242,7 +242,7 @@
       }
       &__restIcon {
         font-size: 30px;
-        margin-left: 20px;
+        margin-left: 18%;
         position: relative;
         bottom: 5px;
         cursor: pointer;
