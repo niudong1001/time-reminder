@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="c-title">
-      <i class="el-icon-back c-title__back" :class="task.state=='started'?'c-title__back--hide':''"  @click="task.state!='started'&&$router.go(-1)"></i> 
+      <i class="el-icon-back c-title__back" :class="task.state=='started'||task.state=='break'?'c-title__back--hide':''"  @click="task.state!='started'&&task.state!='break'&&$router.go(-1)"></i> 
       <span class="c-color--primary">{{task.title}}<span v-if="task.state=='break'">(Breaking...)</span> </span>  
     </h1>
     <div class="task">

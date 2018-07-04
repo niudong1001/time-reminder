@@ -18,6 +18,10 @@ body {
       }
       &--hide {
         color:$bg-color;
+        cursor: default;
+        &:hover {
+          color:$bg-color;
+        }
       }
     }
     &__btn {
