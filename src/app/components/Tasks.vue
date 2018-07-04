@@ -24,7 +24,7 @@
           <div class="todayTasks-list__item-title c-color--primary" @click="router({name:'Task',params:{taskId:task.id}})">{{task.title}}</div>
           <div class="todayTasks-list__item-desc" @click="router({name:'Task',params:{taskId:task.id}})">{{task.desc}}</div>
           <div class="todayTasks-list__item-icons">
-            <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item">{{task.estimate}}</i><i class="el-icon-circle-check todayTasks-list__item-icons__item">{{task.finished}}</i> 
+            <i class="el-icon-circle-check-outline todayTasks-list__item-icons__item"></i>{{task.estimate}}<i class="el-icon-circle-check todayTasks-list__item-icons__item"></i>{{task.finished}}<i style="font-size:15px" class="icon-forkandspoon todayTasks-list__item-icons__item"></i>{{task.break}}  
           </div>
           <!-- <context-menu class="right-menu" 
             :targets="contextMenuTarget" 
@@ -179,7 +179,8 @@
               basicTimeUnit: 45,
               finished: 0,
               state:"prepare",
-              createdTime:new Date().getTime()
+              createdTime:new Date().getTime(),
+              break:0
             }
             vm.form.title = "";
             vm.form.desc = "";

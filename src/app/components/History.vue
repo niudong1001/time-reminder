@@ -6,15 +6,16 @@
     </h1>
     <div class="history">
         <div v-if="!histories.length" class="todayTasks-list-placeholder">
-            No history~
+            You don't have memory~
         </div>
         <div class="history-list" v-for="day in histories" :key="day.createdTime">
             <div class="history-list-title">{{day.createdTime}}</div>
             <el-row class="history-list-tasks">
                 <el-col :span="6" class="history-list-tasks__item" v-for="task in day.list" :key="task.id">
                     <div class="history-list-tasks__item-title">{{task.title}}</div>
+                    <div class="history-list-tasks__item-desc">{{task.desc}}</div>
                     <div class="history-list-tasks__item-icons">
-                        <i class="el-icon-circle-check-outline history-list-tasks__item-icons__item">{{task.estimate}}</i><i class="el-icon-circle-check history-list-tasks__item-icons__item">{{task.finished}}</i>
+                        <i class="el-icon-circle-check-outline history-list-tasks__item-icons__item"></i>{{task.estimate}}<i class="el-icon-circle-check history-list-tasks__item-icons__item"></i>{{task.finished}}<i class="icon-forkandspoon history-list-tasks__item-icons__item" style="font-size:12px"></i>{{task.break||0}}
                     </div>
                 </el-col>
             </el-row>
@@ -92,6 +93,10 @@
                 &-title {
                     font-size: 15px;
                     margin: 10px 0;
+                }
+                &-desc {
+                    font-size: 13px;
+                    color:#666;
                 }
                 &-icons {
                     position: absolute;

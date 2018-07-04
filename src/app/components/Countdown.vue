@@ -1,7 +1,7 @@
 <template>  
   <span :endTime="endTime" :callback="callback" :endText="endText">  
     <slot>  
-      {{content||"00:00"}}  
+      {{content||this.timeUnit+":00"}}  
     </slot>  
   </span>  
 </template>  
@@ -9,10 +9,15 @@
   export default {  
     data(){  
       return {  
-        content: '',  
+        content: '', 
+        timer:null
       }  
     },  
     props:{  
+      enable:{
+        type:Boolean,
+        default:false
+      },
       endTime:{  
         type: String,  
         default :''  
@@ -28,15 +33,36 @@
       callback : {  
         type : Function,  
         default :''  
+      },
+      callbackConfig:{
+        type : Object,  
+        default :{}
       } 
     },  
+    watch:{
+      enable(v){
+        // console.log(v, this);
+        if(!v){
+          if(this.timer){
+            clearInterval(this.timer);
+            this.content = "";
+          }
+        }
+        else{
+          this.countdowm(this.endTime);
+        }
+      },
+    },
     mounted () {  
-     this.countdowm(this.endTime)  
+      // console.log(this.enable);
+      if(this.enable){
+        this.countdowm(this.endTime)  
+      }
     },  
     methods: {  
       countdowm(timestamp){  
       let self = this;  
-      let timer = setInterval(function(){  
+      self.timer = setInterval(function(){  
         let nowTime = new Date();  
         let endTime = new Date(parseInt(timestamp));  
         // console.log(nowTime, endTime, timestamp)
@@ -62,7 +88,7 @@
           self.content = format;  
           }
           else{  
-           clearInterval(timer);  
+           clearInterval(self.timer);  
            self.content = self.endText;  
            self._callback();  
           }  
@@ -70,7 +96,7 @@
         },  
         _callback(){  
         if(this.callback && this.callback instanceof Function){  
-           this.callback(...this);  
+           this.callback(this.callbackConfig);  
          }  
       }  
     }  

@@ -83,7 +83,8 @@ export default new Vuex.Store({
                     basicTimeUnit: elem.basicTimeUnit,
                     finished: elem.finished,
                     state:elem.state,
-                    createdTime:elem.createdTime
+                    createdTime:elem.createdTime,
+                    break:elem.break
                 })
             })
             // console.log(dbAll)
