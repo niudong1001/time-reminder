@@ -1,5 +1,5 @@
 # TimeReminder
-一个简单的时间提醒chome插件，功能类似zamora
+一个简单的时间提醒chome插件，功能类似windows上面的zamora。
 
 ## 资源
 > [chrome插件开发攻略](https://www.cnblogs.com/liuxianan/p/chrome-plugin-develop.html)  
